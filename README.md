@@ -5,6 +5,10 @@ Lua quick
 Substitue most used lua keywords to a quick shortcut.
 Lua almost never use the `!` character, then it is use!
 
+## shortcut convention
+
+I use upper case for lua reserved word and lower case for usual function name.
+
 # Samples
 
 ## Hello world
