@@ -12,7 +12,9 @@ add{
 	"function", "F",
 	"if", "I",
 	"then", ":",
---	"do", "(",
+	"then", "T",
+	"do", "D",
+	"do", "(",
 	"end", ".",
 	"end", ")",
 	"else", "E",
@@ -21,11 +23,6 @@ add{
 
 	"print", "p",
 	"require", "<",
-
---	"-- ", "# ",
---	" or ", "O",
---	" and ", "A",
---	"(...)", ".",
 }
 
 local gsub = string.gsub

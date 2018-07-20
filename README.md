@@ -2,6 +2,9 @@
 
 Lua quick
 
+Substitue most used lua keywords to a quick shortcut.
+Lua almost never use the `!` character, then it is use!
+
 # Samples
 
 ## Hello world
@@ -35,9 +38,14 @@ hello()
 * `require` <-> `!<`
 * `!` -> `!x`
 
-Take a look at https://github.com/tst2005/lua-luq/blob/master/luq.lua#L11-L23
-
 There is some decode alternatives
 * `!T` -> `then`
 * `!(` -> `do`
 * `!)` -> `end`
+
+So we can have
+* `!I` `!T` `!E` `!.` -> `if` `then` `else` `end`
+* `!W` `!(` `!)` -> `while` `do` `end`
+
+For the exact list take a look at https://github.com/tst2005/lua-luq/blob/master/luq.lua#L11-L25
+
