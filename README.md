@@ -31,6 +31,25 @@ In `luq` :
 hello()
 ```
 
+## more sample
+
+The [test.luq.lua](test.luq.lua)
+
+In luq
+```lua
+#!x /usr/bin/env lua
+
+!L luq = !<"luq"
+
+!L data = io.stdin:read("*a")
+!L qata = luq.encode(data)
+!p(qata)
+assert(data == luq.decode(qata))
+!L delta = (#data-#qata)
+!p("OK")
+!p(math.floor(-delta/#data*100).."% ("..#data.." - "..#qata.." = "..delta..")")
+```
+
 ## list of substitutions
 
 * `local` <-> `!L`
