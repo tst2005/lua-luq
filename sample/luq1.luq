@@ -1,0 +1,5 @@
+!L !F hello(who)
+	!R ("hello "..(who or "world").."!x")
+!.
+
+!p(hello())
