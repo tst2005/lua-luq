@@ -1,7 +1,6 @@
 
 local G = _G
 if not G.package.searchpath or not G.package.searchers then
-	print("use uniformapi")
 	-- for lua 5.1 (for package.searchers, package.searchpath, load)
 	G = require "uniformapi"(G)
 end
