@@ -1,10 +1,18 @@
-
-
 local E = {{"!","!x"}}
+local invalidpattern = "x"
+
+local gsub = string.gsub
+local function match_plaintext_as_lua_re(plainpattern)
+	local luaregexppattern = gsub(plainpattern, "([%^%$%(%)%%%.%[%]%*%+%-%?%)])", "%%%1")
+	return luaregexppattern
+end
+
 local function add(t)
 	for n=1,#t,2 do
 		E[#E+1]={ t[n], E[1][1]..t[n+1] }
+		invalidpattern = invalidpattern .. match_plaintext_as_lua_re(t[n+1])
 	end
+	invalidpattern = E[1][1].."[^"..invalidpattern.."]"
 end
 
 add{
@@ -24,10 +32,10 @@ add{
 	"print", "p",
 	"require", "<",
 }
+assert( invalidpattern == "![^xLFI:TD%(%.%)ERWp<]" )
 
-local gsub = string.gsub
 local function gsubstr(data, str1, str2)
-	return gsub(data, gsub(str1, "([%^%$%(%)%%%.%[%]%*%+%-%?%)])", "%%%1"), str2)
+	return gsub(data, match_plaintext_as_lua_re(str1), str2)
 end
 local function encode(data)
 	for _i,kv in ipairs(E) do
@@ -35,7 +43,14 @@ local function encode(data)
 	end
 	return data
 end
+local function invalidluq(data)
+	return string.find(data, invalidpattern)
+end
 local function decode(data)
+	if invalidluq(data) then
+		--return nil, "invalid luq format"
+		error("invalid luq format")
+	end
 	for i=#E,1,-1 do
 		local kv=E[i]
 		data = gsubstr(data, kv[2], kv[1])
