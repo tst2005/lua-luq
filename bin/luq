@@ -1,0 +1,20 @@
+#! /bin/sh
+
+scriptname="$0"
+case "$scriptname" in
+	(./*) scriptname="${scriptname#./}" ;;
+esac
+case "$scriptname" in
+#	(*/luq?*) scriptname="${scriptname%/luq*}/lua${scriptname##*/luq}" ;;
+	(*/luq*|luq*) scriptname="lua${scriptname##*luq}" ;;
+	(*) echo >&2 "ERROR: unsupported command by the luq wrapper"; exit 1 ;;
+esac
+
+if ! command -v >/dev/null 2>&1 "$scriptname"; then
+	echo >&2 "No such $scriptname"
+	exit 1
+fi
+
+f="$1";shift
+"$scriptname" -e 'io.stdout:write(require"luq".decode(io.stdin:read("*a")))' < "$f" |
+"$scriptname" -l luq.loader - "$@"
