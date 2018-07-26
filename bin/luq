@@ -15,6 +15,36 @@ if ! command -v >/dev/null 2>&1 "$scriptname"; then
 	exit 1
 fi
 
-f="$1";shift
-"$scriptname" -e 'io.stdout:write(require"luq".decode(io.stdin:read("*a")))' < "$f" |
-"$scriptname" -l luq.loader - "$@"
+searchfilearg() {
+	local f=''
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			(--) shift;break;;
+			(-e|-l) shift;;
+			(-) break ;;
+			(-i|-v|-E) ;;
+			(*) echo >&2 "unknown option"; exit 123;;
+		esac
+		shift
+	done
+	if [ $# -eq 0 ]; then
+		f="-"
+	else
+		f="$1"
+	fi
+	printf '%s' "$f"
+}
+
+{
+	f="$(searchfilearg "$@")"
+#	case "$f" in
+#		(-) ;;
+#		(-*) echo >&2 "$0: support file only on first argument" ; exit 1;;
+#	esac
+	if [ "$f" = "-" ]; then
+		"$scriptname" -e 'io.stdout:write(require"luq".decode(io.stdin:read("*a")))'
+	else
+		"$scriptname" -e 'io.stdout:write(require"luq".decode(io.stdin:read("*a")))' < "$f"
+	fi
+} |
+"$scriptname" -l luq.loader "$@"
