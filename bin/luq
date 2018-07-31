@@ -1,9 +1,29 @@
-#! /bin/sh
+#! /bin/bash
+
+
+searchfilearg() {
+	argat=1
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			(-h|--help) argat=0;return 0;;
+			(--) shift;argat=$(($argat+1));break;;
+			(-e|-l|-j) shift;argat=$(($argat+1));;
+			(-b) echo >&2 "luajit -b option not implemented"; exit 124;;
+			(-) break ;;
+			(-i|-v|-E|-O) ;;
+			(-*) echo >&2 "unknown option"; exit 123;;
+			(*) break;;
+		esac
+		shift
+		argat=$(($argat+1))
+	done
+	if [ $# -gt 0 ]; then
+		filearg="$1"
+	fi
+}
+
 
 scriptname="$0"
-case "$scriptname" in
-	(./*) scriptname="${scriptname#./}" ;;
-esac
 case "$scriptname" in
 #	(*/luq?*) scriptname="${scriptname%/luq*}/lua${scriptname##*/luq}" ;;
 	(*/luq*|luq*) scriptname="lua${scriptname##*luq}" ;;
@@ -15,36 +35,63 @@ if ! command -v >/dev/null 2>&1 "$scriptname"; then
 	exit 1
 fi
 
-searchfilearg() {
-	local f=''
-	while [ $# -gt 0 ]; do
-		case "$1" in
-			(--) shift;break;;
-			(-e|-l) shift;;
-			(-) break ;;
-			(-i|-v|-E) ;;
-			(*) echo >&2 "unknown option"; exit 123;;
-		esac
-		shift
-	done
-	if [ $# -eq 0 ]; then
-		f="-"
-	else
-		f="$1"
-	fi
-	printf '%s' "$f"
-}
+argat=''
+filearg=''
+# search the position of the file argument
+searchfilearg "$@"
 
-{
-	f="$(searchfilearg "$@")"
-#	case "$f" in
-#		(-) ;;
-#		(-*) echo >&2 "$0: support file only on first argument" ; exit 1;;
-#	esac
-	if [ "$f" = "-" ]; then
-		"$scriptname" -e 'io.stdout:write(require"luq".decode(io.stdin:read("*a")))'
+#if [ $argat -gt 1 ] && [ $argat -ne $# ]; then
+#	# bash is required
+#fi 
+
+if [ -n "$filearg" ]; then
+	if [ "$filearg" = "-" ]; then
+		tmp="-"
 	else
-		"$scriptname" -e 'io.stdout:write(require"luq".decode(io.stdin:read("*a")))' < "$f"
+		tmp="$(mktemp --suffix=.lua)"
+		trap "rm -f -- $tmp" EXIT
 	fi
-} |
-"$scriptname" -l luq.loader "$@"
+	if [ $argat -gt 0 ]; then
+		eval 'set -- "${@:1:'"$(($argat-1))"'}" "'"$tmp"'" "${@:'"$(($argat+1))"'}"'
+	fi
+fi
+
+if [ $argat -eq 0 ]; then
+	"$scriptname" "$@"
+	exit $?
+fi
+if [ -n "filearg" ] && [ "$filearg" != "-" ] && [ -n "$tmp" ] && [ "$tmp" != "-" ]; then
+	"$scriptname" -e 'io.stdout:write(require"luq".decode(io.stdin:read("*a")))' <"$filearg" >"$tmp"
+	"$scriptname" -l luq.loader "$@"
+else
+	if [ -t 0 ]; then
+		echo >&2 "WARNING: nothing in stdin ?!"
+	fi
+	"$scriptname" -e 'io.stdout:write(require"luq".decode(io.stdin:read("*a")))' |
+	"$scriptname" -l luq.loader "$@"
+fi
+
+
+# les cas:
+# - lua file
+# - lua options file
+# - lua options file args
+# - lua 
+# - lua -
+# - lua - args
+# - lua options
+# - lua options -
+# - lua options - args
+
+#########################################################
+#p0="$0"
+##p0="$(readlink -f "$p0")"	;# real path to file
+#p0="${p0%/*}"			;# real dir
+#
+## want an absolute path
+#case "$p0" in
+#	(/*) ;;
+#	(*) p0="$(pwd)/$p0" ;;
+#esac
+##########################################################
+
