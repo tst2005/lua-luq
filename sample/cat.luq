@@ -1,0 +1,8 @@
+!L !F process(x)
+	!1(x.."\n")
+!.
+!W true !(
+	!L line = !0("*l")
+	!I not line !T break !.
+	process(line)
+!)

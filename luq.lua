@@ -16,6 +16,10 @@ local function add(t)
 end
 
 add{
+	"io.stdin:read", "0",
+	"io.stdout:write", "1",
+	"io.stderr:write", "2",
+
 	"local", "L",
 	"function", "F",
 	"if", "I",
@@ -32,7 +36,7 @@ add{
 	"print", "p",
 	"require", "<",
 }
-assert( invalidpattern == "![^xLFI:TD%(%.%)ERWp<]" )
+assert( invalidpattern == "![^x012LFI:TD%(%.%)ERWp<]", "please debug the invalidpattern check :"..invalidpattern )
 
 local function gsubstr(data, str1, str2)
 	return gsub(data, match_plaintext_as_lua_re(str1), str2)
