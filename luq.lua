@@ -27,7 +27,7 @@ add{
 	"end", ")",
 	"else", "E",
 	"return", "R",
-	"while ", "W",
+	"while", "W",
 
 	"print", "p",
 	"require", "<",

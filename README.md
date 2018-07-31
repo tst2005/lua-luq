@@ -70,5 +70,5 @@ So we can have
 * `!I` `!T` `!E` `!.` -> `if` `then` `else` `end`
 * `!W` `!(` `!)` -> `while` `do` `end`
 
-For the exact list take a look at https://github.com/tst2005/lua-luq/blob/master/luq.lua#L11-L25
+For the exact list take a look at https://github.com/tst2005/lua-luq/blob/master/luq.lua#L19-L33
 
