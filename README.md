@@ -5,6 +5,11 @@ Lua quick
 Substitue most used lua keywords to a quick shortcut.
 Lua almost never use the `!` character, then it is use!
 
+## is it really usefull ?
+
+This tool is experiemental and made initialy for the fun.
+Nevertheless all parts (the [loader](luq/loader.lua), [command wrapper](bin/luq), ...) could be reused to support a new language syntax.
+
 ## shortcut convention
 
 I use upper case for lua reserved word and lower case for usual function name.
