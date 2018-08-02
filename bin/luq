@@ -85,10 +85,6 @@ if [ -n "$filearg" ]; then
 	fi
 fi
 
-echo "args: $*"
-for f in "$@"; do
-	echo ". $f"
-done
 if [ $argat -eq 0 ]; then
 	echo >&2 "$scriptname" "$@"
 	"$scriptname" "$@"
