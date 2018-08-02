@@ -35,6 +35,34 @@ if ! command -v >/dev/null 2>&1 "$scriptname"; then
 	exit 1
 fi
 
+n=0
+substnow=false
+shift=false
+for a in "$@"; do
+	if ${shift:-false}; then
+		n=$(($n+1))
+		shift=false
+		continue
+	fi
+	if ${substnow:-false}; then
+		#tmp="$(printf '%s' "$a" | "$scriptname" -e 'io.stdout:write(require"luq".decode(io.stdin:read"*a"))')"
+		tmp="$(printf '%s' "$a" | luqdecode)"
+		eval 'set -- "${@:1:'"$(($n-1))"'}" "$tmp" "${@:'"$(($n+1))"'}"'
+		substnow=false
+		continue
+	fi
+	case "$a" in
+		(-h|--help) break;;
+		(--) break;;
+		(-e) substnow=true; n=$(($n+1));;
+		(-l|-j) shift=true;;
+		(-) break ;;
+		(-*) ;;
+		(*) break;;
+	esac
+	n=$(($n+1))
+done
+
 argat=''
 filearg=''
 # search the position of the file argument
@@ -52,15 +80,26 @@ if [ -n "$filearg" ]; then
 		trap "rm -f -- $tmp" EXIT
 	fi
 	if [ $argat -gt 0 ]; then
+		echo >&2 "substitute $filearg -> $tmp"
 		eval 'set -- "${@:1:'"$(($argat-1))"'}" "'"$tmp"'" "${@:'"$(($argat+1))"'}"'
 	fi
 fi
 
+echo "args: $*"
+for f in "$@"; do
+	echo ". $f"
+done
 if [ $argat -eq 0 ]; then
+	echo >&2 "$scriptname" "$@"
 	"$scriptname" "$@"
 	exit $?
 fi
 if [ -n "filearg" ] && [ "$filearg" != "-" ] && [ -n "$tmp" ] && [ "$tmp" != "-" ]; then
+	if [ -t 0 ]; then
+		"$scriptname" -l luq.loader "$@"
+		exit $?
+	fi
+
 	"$scriptname" -e 'io.stdout:write(require"luq".decode(io.stdin:read("*a")))' <"$filearg" >"$tmp"
 	"$scriptname" -l luq.loader "$@"
 else
