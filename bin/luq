@@ -80,13 +80,13 @@ if [ -n "$filearg" ]; then
 		trap "rm -f -- $tmp" EXIT
 	fi
 	if [ $argat -gt 0 ]; then
-		echo >&2 "substitute $filearg -> $tmp"
+		#echo >&2 "substitute $filearg -> $tmp"
 		eval 'set -- "${@:1:'"$(($argat-1))"'}" "'"$tmp"'" "${@:'"$(($argat+1))"'}"'
 	fi
 fi
 
 if [ $argat -eq 0 ]; then
-	echo >&2 "$scriptname" "$@"
+	#echo >&2 "$scriptname" "$@"
 	"$scriptname" "$@"
 	exit $?
 fi
