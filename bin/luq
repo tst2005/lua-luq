@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 
 searchfilearg() {
@@ -47,7 +47,8 @@ for a in "$@"; do
 	if ${substnow:-false}; then
 		#tmp="$(printf '%s' "$a" | "$scriptname" -e 'io.stdout:write(require"luq".decode(io.stdin:read"*a"))')"
 		tmp="$(printf '%s' "$a" | luqdecode)"
-		eval 'set -- "${@:1:'"$(($n-1))"'}" "$tmp" "${@:'"$(($n+1))"'}"'
+		#eval 'set -- "${@:1:'"$(($n-1))"'}" "$tmp" "${@:'"$(($n+1))"'}"'
+		eval 'set -- '"$([ $n -le 1 ] || printf ' "$%s"' $(seq 1 $(($n-1)) ) )"' "$tmp" '"$([ $n -ge $# ] || printf ' "$%s"' $(seq $(($n+1)) $#) )"
 		substnow=false
 		continue
 	fi
@@ -81,7 +82,9 @@ if [ -n "$filearg" ]; then
 	fi
 	if [ $argat -gt 0 ]; then
 		#echo >&2 "substitute $filearg -> $tmp"
-		eval 'set -- "${@:1:'"$(($argat-1))"'}" "'"$tmp"'" "${@:'"$(($argat+1))"'}"'
+		n=$argat
+		#eval 'set -- "${@:1:'"$(($n-1))"'}" "'"$tmp"'" "${@:'"$(($n+1))"'}"'
+		eval 'set -- '"$([ $n -le 1 ] || printf ' "$%s"' $(seq 1 $(($n-1)) ) )"' "$tmp" '"$([ $n -ge $# ] || printf ' "$%s"' $(seq $(($n+1)) $#) )"
 	fi
 fi
 
